@@ -1,0 +1,38 @@
+#!/bin/bash
+
+## Copying remote data base to local in a mysql docker container
+
+# Create a Cron Job on your hosting server's panel control:
+# /usr/bin/mysqldump -uuser -ppass database > /home/yourdomain/directory-not-public/backupfile.sql
+
+# Setting Variables
+
+database="database"
+
+remoteBackupFile="backupfile.sql"
+
+currentDate=$(date '+%m%d%y%H%M%S')
+
+localBackupFile=$currentDate"-"$remoteBackupFile
+
+echo "Local Backup File: "$localBackupFile
+
+remoteBackupDirectory="/home/yourdomain/directory-not-public"
+
+remoteUserServer="user@server"
+
+mysqlContainer="namecontainer"
+
+userMysqlContainer="root"
+
+passMysqlContainer="root"
+
+
+# copying backup remote file to current local folder
+scp $remoteUserServer:$remoteBackupDirectory/$remoteBackupFile ./$localBackupFile
+
+# your backup file is here
+localBackupDirectory=$PWD
+
+# run docker to update local database
+docker exec -i $mysqlContainer mysql -u$userMysqlContainer -p$passMysqlContainer $database < $localBackupDirectory/$localBackupFile 
